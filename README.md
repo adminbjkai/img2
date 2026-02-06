@@ -27,6 +27,38 @@ Environment overrides:
 - `UPLOAD_DIR` (default: ./uploads)
 - `DB_PATH` (default: ./data/images.db)
 
+## E2E Screenshots
+
+1. Run the server:
+
+```bash
+./run.sh
+```
+
+2. Install Playwright (once per machine/CI image):
+
+```bash
+npm install
+npx playwright install --with-deps chromium
+```
+
+3. Capture screenshots:
+
+```bash
+npm run shots
+```
+
+## E2E Tests
+
+Assumes the server is already running.
+
+```bash
+npm run test:e2e
+```
+
+Optional override:
+- `BASE_URL` (default: http://127.0.0.1:8097)
+
 ## Endpoints
 - `/` UI
 - `/upload` (POST multipart)

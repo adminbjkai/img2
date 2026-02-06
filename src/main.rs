@@ -50,7 +50,7 @@ async fn main() {
     let port: u16 = std::env::var("PORT")
         .ok()
         .and_then(|v| v.parse().ok())
-        .unwrap_or(8127);
+        .unwrap_or(8097);
     let upload_dir = PathBuf::from(std::env::var("UPLOAD_DIR").unwrap_or_else(|_| "./uploads".to_string()));
     let db_path = PathBuf::from(std::env::var("DB_PATH").unwrap_or_else(|_| "./data/images.db".to_string()));
 
