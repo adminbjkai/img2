@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>img2</title>
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --panel: #121820;
+            --text: #e5e7eb;
+            --muted: #8b95a7;
+            --border: #1f2a37;
+            --accent: #9ca3af;
+            --glow: rgba(148, 163, 184, 0.25);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .wrap {
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 16px 40px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin: 0 0 8px;
+            letter-spacing: 0.02em;
+        }
+        p.sub {
+            margin: 0 0 24px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        }
+        .upload-box {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: #0f151d;
+        }
+        .upload-box.dragover {
+            border-color: #cbd5f5;
+            background: #141c27;
+        }
+        .upload-box p {
+            margin: 8px 0;
+            color: var(--muted);
+        }
+        .paste-btn {
+            margin-top: 8px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            background: #0f151d;
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .paste-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .file-input { display: none; }
+        .preview {
+            display: none;
+            margin-top: 16px;
+        }
+        .preview img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        select, button {
+            font-size: 0.95rem;
+        }
+        select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #0f151d;
+            color: var(--text);
+        }
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            background: linear-gradient(180deg, #1f2937, #0f172a);
+            color: var(--text);
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            box-shadow: 0 8px 20px var(--glow);
+        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .loading, .error, .result { display: none; margin-top: 16px; }
+        .error { color: #b91c1c; }
+        .result img { max-width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+        .url-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .url-box input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #0f151d;
+            color: var(--text);
+        }
+        .copy-btn {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            background: #0f151d;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text);
+        }
+        footer {
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+        @media (max-width: 600px) {
+            .row { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1>img2</h1>
+        <p class="sub">Clean, private image sharing.</p>
+        <div class="card">
+            <div class="upload-box" id="uploadBox">
+                <p>Drop image here, click to select, or paste</p>
+                <p>Press Ctrl/⌘ + V or use the button below</p>
+                <button class="paste-btn" id="pasteBtn" type="button">Paste from Clipboard</button>
+                <input type="file" class="file-input" id="fileInput" accept="image/*">
+            </div>
+
+            <div class="preview" id="preview">
+                <img id="previewImg" alt="Preview">
+                <div class="row">
+                    <label for="deleteAfter">Auto-delete:</label>
+                    <select id="deleteAfter">
+                        <option value="0">Never</option>
+                        <option value="5">5 minutes</option>
+                        <option value="15">15 minutes</option>
+                        <option value="30">30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="180">3 hours</option>
+                        <option value="360">6 hours</option>
+                        <option value="720">12 hours</option>
+                        <option value="1440">1 day</option>
+                        <option value="2880">2 days</option>
+                        <option value="7200">5 days</option>
+                        <option value="10080">7 days</option>
+                        <option value="14400">10 days</option>
+                        <option value="43200">30 days</option>
+                        <option value="129600">90 days</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <button class="btn" id="uploadBtn">Upload Image</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">Uploading...</div>
+            <div class="error" id="error"></div>
+
+            <div class="result" id="result">
+                <img id="resultThumb" alt="Uploaded image">
+                <div class="url-box">
+                    <input type="text" id="imageUrl" readonly>
+                    <button class="copy-btn" id="copyBtn">Copy</button>
+                </div>
+                <div class="row">
+                    <img id="qrCode" alt="QR" style="max-width: 140px;">
+                </div>
+                <div id="deleteInfo" style="margin-top: 8px; color: var(--muted);"></div>
+                <div class="row">
+                    <button class="btn" id="newUpload">Upload Another</button>
+                </div>
+            </div>
+        </div>
+        <footer>img2 • lightweight, no-tracking</footer>
+    </div>
+
+    <script>
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+        const deleteAfter = document.getElementById('deleteAfter');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const resultThumb = document.getElementById('resultThumb');
+        const imageUrl = document.getElementById('imageUrl');
+        const copyBtn = document.getElementById('copyBtn');
+        const qrCode = document.getElementById('qrCode');
+        const deleteInfo = document.getElementById('deleteInfo');
+        const newUpload = document.getElementById('newUpload');
+
+        let selectedFile = null;
+
+        uploadBox.addEventListener('click', () => fileInput.click());
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+        uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData && e.clipboardData.items ? e.clipboardData.items : [];
+            for (const item of items) {
+                if (item.type && item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        e.preventDefault();
+                        handleFile(ensureFileName(file));
+                        return;
+                    }
+                }
+            }
+        });
+
+        pasteBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!navigator.clipboard || !navigator.clipboard.read) {
+                showError('Clipboard access not supported. Use Ctrl/⌘ + V.');
+                return;
+            }
+            pasteBtn.disabled = true;
+            try {
+                const items = await navigator.clipboard.read();
+                for (const item of items) {
+                    const type = item.types.find((t) => t.startsWith('image/'));
+                    if (!type) continue;
+                    const blob = await item.getType(type);
+                    const file = new File([blob], `clipboard-${Date.now()}.png`, { type: blob.type || 'image/png' });
+                    handleFile(file);
+                    return;
+                }
+                showError('No image found in clipboard.');
+            } catch (err) {
+                showError('Clipboard read failed. Use Ctrl/⌘ + V.');
+            } finally {
+                pasteBtn.disabled = false;
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please select an image file.');
+                return;
+            }
+            if (file.size > 50 * 1024 * 1024) {
+                showError('File size must be under 50MB.');
+                return;
+            }
+            selectedFile = file;
+            previewImg.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+            error.style.display = 'none';
+            result.style.display = 'none';
+        }
+
+        function ensureFileName(file) {
+            if (file.name && file.name.trim()) return file;
+            const ext = file.type && file.type.includes('/') ? file.type.split('/')[1] : 'png';
+            return new File([file], `clipboard-${Date.now()}.${ext}`, { type: file.type || 'image/png' });
+        }
+
+        function showError(msg) {
+            error.textContent = msg;
+            error.style.display = 'block';
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            uploadBtn.disabled = true;
+            loading.style.display = 'block';
+            preview.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('delete_after', deleteAfter.value);
+
+            try {
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.error || 'Upload failed');
+
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                resultThumb.src = data.url;
+                imageUrl.value = data.url;
+                qrCode.src = data.qr_code;
+
+                if (data.delete_at) {
+                    const deleteDate = new Date(data.delete_at);
+                    deleteInfo.textContent = `Auto-deletes on ${deleteDate.toLocaleString()}`;
+                } else {
+                    deleteInfo.textContent = '';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                preview.style.display = 'block';
+                uploadBtn.disabled = false;
+                showError(err.message);
+            }
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(imageUrl.value);
+                copyBtn.textContent = 'Copied';
+                setTimeout(() => (copyBtn.textContent = 'Copy'), 1500);
+            } catch {
+                imageUrl.select();
+                document.execCommand('copy');
+            }
+        });
+
+        newUpload.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            deleteAfter.value = '0';
+            uploadBtn.disabled = false;
+            preview.style.display = 'none';
+            result.style.display = 'none';
+            error.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
