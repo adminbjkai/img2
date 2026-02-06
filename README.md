@@ -9,6 +9,20 @@ Minimal Rust image sharing service with clipboard paste, auto-delete, QR codes, 
 - SQLite-backed metadata store
 - QR code generation for easy sharing
 
+## How It Works
+
+![How img2 works](docs/assets/images/img2-infographic-how-it-works-20260206.png)
+
+### UI (Current Screens)
+
+Home:
+
+![img2 home](docs/assets/images/20260206-home.png)
+
+After upload (shows thumbnail, share URL, QR code, and auto-delete info):
+
+![img2 after upload](docs/assets/images/20260206-after-upload.png)
+
 ## Build
 
 ```bash
@@ -61,13 +75,13 @@ Optional override:
 
 ## Endpoints
 - `/` UI
-- `/upload` (POST multipart)
-- `/i/:id` image
-- `/thumb/:id` thumbnail
+- `/upload` (POST multipart: `file`, `delete_after`)
+- `/i/:id` image (stored file bytes)
+- `/thumb/:id` thumbnail (300x300 PNG)
 - `/health`
 
 ## Nginx
-See `nginx-img2.bjk.ai.conf` for reverse proxy config.
+See `nginx-img2.bjk.ai.conf` for reverse proxy config (expects the app on `127.0.0.1:8097` by default).
 
 ## GitHub Push Notes
 This repo excludes runtime data and build outputs via `.gitignore`:
